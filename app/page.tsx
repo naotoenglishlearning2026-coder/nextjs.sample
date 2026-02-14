@@ -1,10 +1,17 @@
 import AddForm from "./ui/AddForm";
 
-type Log = { id: number; title: string; };
+type Log = { id: number; title: string };
 
 async function getLogs(): Promise<Log[]> {
-  const res = await fetch("/api/logs", { cache: "no-store" });
-  return res.ok ? res.json() : [];
+  try {
+    // 相対パスで fetch
+    const res = await fetch("/api/logs", { cache: "no-store" });
+    if (!res.ok) throw new Error("Failed to fetch logs");
+    return res.json();
+  } catch (err) {
+    console.error("Error fetching logs:", err);
+    return []; // エラーでも空配列
+  }
 }
 
 export default async function Page() {
@@ -15,7 +22,9 @@ export default async function Page() {
       <h1>Study Log</h1>
       <AddForm />
       <ul>
-        {logs.map((log) => <li key={log.id}>{log.title}</li>)}
+        {logs.map((log) => (
+          <li key={log.id}>{log.title}</li>
+        ))}
       </ul>
     </main>
   );

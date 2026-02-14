@@ -21,7 +21,7 @@ export default function AddForm() {
     setTitle("");
     setLoading(false);
 
-    // リロードして最新データ取得
+    // ページをリロードして最新データ取得
     window.location.reload();
   }
 
