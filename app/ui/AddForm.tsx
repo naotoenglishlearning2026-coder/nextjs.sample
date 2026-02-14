@@ -8,23 +8,20 @@ export default function AddForm() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     if (!title) return;
 
     setLoading(true);
 
     await fetch("/api/logs", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
     });
 
     setTitle("");
     setLoading(false);
 
-    // 再読み込みして最新データ取得
+    // リロードして最新データ取得
     window.location.reload();
   }
 
@@ -35,7 +32,6 @@ export default function AddForm() {
         onChange={(e) => setTitle(e.target.value)}
         placeholder="What did you study?"
       />
-
       <button type="submit" disabled={loading}>
         Add
       </button>
