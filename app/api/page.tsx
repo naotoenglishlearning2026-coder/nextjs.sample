@@ -6,10 +6,7 @@ type Log = {
 };
 
 async function getLogs(): Promise<Log[]> {
-  const res = await fetch("http://localhost:3000/api/logs", {
-    cache: "no-store",
-  });
-
+  const res = await fetch("/api/logs", { cache: "no-store" });
   return res.json();
 }
 
