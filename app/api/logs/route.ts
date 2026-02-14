@@ -1,27 +1,14 @@
-import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
 
-type Log = {
-  id: number;
-  title: string;
-};
-
-let logs: Log[] = [
-  { id: 1, title: "Learn Next.js basics" }
-];
+const prisma = new PrismaClient();
 
 export async function GET() {
-  return NextResponse.json(logs);
+  const logs = await prisma.log.findMany({ orderBy: { createdAt: "desc" } });
+  return new Response(JSON.stringify(logs), { status: 200 });
 }
 
 export async function POST(req: Request) {
-  const body = await req.json();
-
-  const newLog: Log = {
-    id: Date.now(),
-    title: body.title,
-  };
-
-  logs.push(newLog);
-
-  return NextResponse.json(newLog, { status: 201 });
+  const { title } = await req.json();
+  const log = await prisma.log.create({ data: { title } });
+  return new Response(JSON.stringify(log), { status: 201 });
 }
