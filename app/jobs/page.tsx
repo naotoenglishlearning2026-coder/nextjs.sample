@@ -1,23 +1,39 @@
-import AddJobForm from "@/app/components/AddJobForm";
-import JobList from "@/app/components/JobList";
-import { prisma } from "@/lib/prisma";
+"use client";
 
-export default async function JobsPage() {
-  const categories = await prisma.category.findMany();
-  const initialJobs = await prisma.job.findMany({
-    orderBy: { id: "desc" },
-    include: { category: true, company: true },
-  });
+import { useEffect, useState } from "react";
 
-  const companyId = 1; // 企業ユーザーID（仮）
+type Job = {
+  id: number;
+  title: string;
+  company: {
+    name: string;
+  };
+};
+
+export default function JobsPage() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+
+  useEffect(() => {
+    async function fetchJobs() {
+      const res = await fetch("/api/jobs");
+      const data = await res.json();
+      setJobs(data);
+    }
+
+    fetchJobs();
+  }, []);
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">求人一覧</h1>
+    <main style={{ padding: 24 }}>
+      <h1>Jobs</h1>
 
-      <AddJobForm companyId={companyId} categories={categories} onJobAdded={() => window.location.reload()} />
-
-      <JobList initialJobs={initialJobs} />
-    </div>
+      <ul>
+        {jobs.map((job) => (
+          <li key={job.id}>
+            {job.title} / {job.company.name}
+          </li>
+        ))}
+      </ul>
+    </main>
   );
 }

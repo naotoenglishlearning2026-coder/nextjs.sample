@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 type Props = {
-  onAdd: () => void; // 追加後に親に通知
+  onAdd: () => void;
 };
 
 export default function AddForm({ onAdd }: Props) {
@@ -11,15 +11,12 @@ export default function AddForm({ onAdd }: Props) {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [salary, setSalary] = useState("");
-  const [companyId, setCompanyId] = useState("");
-  const [categoryId, setCategoryId] = useState("");
-
+  const [companyId, setCompanyId] = useState(""); // 会社IDを入力
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
-    if (!title) return;
+    if (!title || !companyId) return alert("タイトルと会社IDは必須です");
 
     setLoading(true);
 
@@ -31,8 +28,7 @@ export default function AddForm({ onAdd }: Props) {
         description,
         location,
         salary,
-        companyId,
-        categoryId,
+        companyId: Number(companyId), // numberに変換
       }),
     });
 
@@ -42,9 +38,7 @@ export default function AddForm({ onAdd }: Props) {
       setLocation("");
       setSalary("");
       setCompanyId("");
-      setCategoryId("");
-
-      onAdd();
+      onAdd(); // 親ページに再フェッチを促す
     } else {
       alert("Error adding job");
     }
@@ -55,43 +49,32 @@ export default function AddForm({ onAdd }: Props) {
   return (
     <form onSubmit={handleSubmit} style={{ marginBottom: 16 }}>
       <input
-        placeholder="title"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
+        placeholder="Job Title"
       />
-
       <input
-        placeholder="description"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
+        placeholder="Description"
       />
-
       <input
-        placeholder="location"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
+        placeholder="Location"
       />
-
       <input
-        placeholder="salary"
         value={salary}
         onChange={(e) => setSalary(e.target.value)}
+        placeholder="Salary"
       />
-
       <input
-        placeholder="companyId"
         value={companyId}
         onChange={(e) => setCompanyId(e.target.value)}
+        placeholder="Company ID"
       />
-
-      <input
-        placeholder="categoryId"
-        value={categoryId}
-        onChange={(e) => setCategoryId(e.target.value)}
-      />
-
       <button type="submit" disabled={loading}>
-        Add job
+        Add
       </button>
     </form>
   );
