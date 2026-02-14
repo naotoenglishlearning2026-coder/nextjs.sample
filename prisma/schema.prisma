@@ -10,11 +10,11 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:./dev.db"
 }
 
 model Log {
-  id    Int    @id @default(autoincrement())
-  title String
+  id        Int      @id @default(autoincrement())
+  title     String
   createdAt DateTime @default(now())
 }

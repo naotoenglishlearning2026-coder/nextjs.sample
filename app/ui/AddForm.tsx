@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 
-export default function AddForm() {
+type Props = {
+  onAdd: () => void; // ログ追加後に親ページに通知
+};
+
+export default function AddForm({ onAdd }: Props) {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -12,17 +16,20 @@ export default function AddForm() {
 
     setLoading(true);
 
-    await fetch("/api/logs", {
+    const res = await fetch("/api/logs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
     });
 
-    setTitle("");
-    setLoading(false);
+    if (res.ok) {
+      setTitle("");
+      onAdd(); // 親ページに再フェッチを促す
+    } else {
+      alert("Error adding log");
+    }
 
-    // ページをリロードして最新データ取得
-    window.location.reload();
+    setLoading(false);
   }
 
   return (
