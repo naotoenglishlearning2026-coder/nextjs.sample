@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   onAdd: () => void;
+};
+
+type Category = {
+  id: number;
+  name: string;
+};
+
+type Company = {
+  id: number;
+  name: string;
 };
 
 export default function AddForm({ onAdd }: Props) {
@@ -11,12 +21,34 @@ export default function AddForm({ onAdd }: Props) {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [salary, setSalary] = useState("");
-  const [companyId, setCompanyId] = useState(""); // 会社IDを入力
+  const [companyId, setCompanyId] = useState<number | "">("");
+  const [categoryId, setCategoryId] = useState<number | "">("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // カテゴリと会社一覧を取得
+  useEffect(() => {
+    async function fetchData() {
+      const [catRes, compRes] = await Promise.all([
+        fetch("/api/categories"),
+        fetch("/api/companies"), // ← 後でAPI作成
+      ]);
+      const [catData, compData] = await Promise.all([
+        catRes.json(),
+        compRes.json(),
+      ]);
+      setCategories(catData);
+      setCompanies(compData);
+    }
+    fetchData();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title || !companyId) return alert("タイトルと会社IDは必須です");
+    if (!title || companyId === "") {
+      return alert("タイトルと会社は必須です");
+    }
 
     setLoading(true);
 
@@ -28,7 +60,8 @@ export default function AddForm({ onAdd }: Props) {
         description,
         location,
         salary,
-        companyId: Number(companyId), // numberに変換
+        companyId: Number(companyId),
+        categoryId: categoryId === "" ? null : Number(categoryId),
       }),
     });
 
@@ -38,7 +71,8 @@ export default function AddForm({ onAdd }: Props) {
       setLocation("");
       setSalary("");
       setCompanyId("");
-      onAdd(); // 親ページに再フェッチを促す
+      setCategoryId("");
+      onAdd();
     } else {
       alert("Error adding job");
     }
@@ -68,11 +102,34 @@ export default function AddForm({ onAdd }: Props) {
         onChange={(e) => setSalary(e.target.value)}
         placeholder="Salary"
       />
-      <input
+
+      {/* 会社プルダウン */}
+      <select
         value={companyId}
-        onChange={(e) => setCompanyId(e.target.value)}
-        placeholder="Company ID"
-      />
+        onChange={(e) => setCompanyId(e.target.value === "" ? "" : Number(e.target.value))}
+        required
+      >
+        <option value="">Select company</option>
+        {companies.map((comp) => (
+          <option key={comp.id} value={comp.id}>
+            {comp.name}
+          </option>
+        ))}
+      </select>
+
+      {/* カテゴリプルダウン */}
+      <select
+        value={categoryId}
+        onChange={(e) => setCategoryId(e.target.value === "" ? "" : Number(e.target.value))}
+      >
+        <option value="">No category</option>
+        {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
+      </select>
+
       <button type="submit" disabled={loading}>
         Add
       </button>
